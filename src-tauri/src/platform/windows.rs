@@ -1,11 +1,10 @@
 use crate::models::*;
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 use std::env;
 use std::fs;
-use std::io::{Read, Seek, SeekFrom, Write};
+use std::io::{Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::time::UNIX_EPOCH;
 
 fn user_home() -> PathBuf {
     env::var("USERPROFILE")
