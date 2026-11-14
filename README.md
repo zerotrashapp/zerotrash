@@ -35,17 +35,6 @@ Grab the latest installer for your operating system from the [**Releases Page**]
 
 **ZeroTrash** replaces bloated, subscription-heavy system cleaners with a fast, transparent, locally-executed Rust engine and a modern native desktop interface. Whether you want one-click cleanup in **Simple Mode** or granular control in **Pro Mode**, ZeroTrash finds deep application leftovers, hidden disk hogs, and AI model caches without ever sending your data off-device.
 
-## Screenshots
-
-<p align="center">
-  <img src="docs/screenshots/01-smart-care.png" alt="ZeroTrash Smart Care" width="49%" />
-  <img src="docs/screenshots/02-applications.png" alt="ZeroTrash Application Uninstaller" width="49%" />
-</p>
-<p align="center">
-  <img src="docs/screenshots/03-exclusive-tools.png" alt="ZeroTrash Ghost Space Hunter & Exclusive Tools" width="49%" />
-  <img src="docs/screenshots/04-command-palette.png" alt="ZeroTrash Command Palette" width="49%" />
-</p>
-
 ## Key Features
 
 ### Core Cleaning & Uninstallation
