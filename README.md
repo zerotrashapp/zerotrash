@@ -57,6 +57,7 @@ Grab the latest installer for your operating system from the [**Releases Page**]
 
 ### Built for Every Workflow
 - **Simple Mode & Pro Mode**: Start with clean **Quick-Start Smart Care** cards, or toggle **Pro Tools** in the sidebar for full power-user modules.
+- **Multi-Language UI & Themes**: Instant switching between **5 languages** (English, Greek, German, Spanish, French) with native **Dark & Light** themes.
 - **Command Palette (`Cmd + K` / `Ctrl + K`)**: Jump instantly to any scanner, tool, or action from the keyboard.
 - **Export Audit Report (Save As)**: Generate and save full system audit reports anywhere on disk using your OS's native file dialog.
 
