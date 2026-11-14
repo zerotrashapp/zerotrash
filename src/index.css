@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(142, 142, 147, 0.35);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(142, 142, 147, 0.55);
+}
+
+/* Apple macOS Sequoia Light (White) Mode Overrides */
+.theme-light,
+.theme-light .bg-\[\#141416\] {
+  background-color: #f2f2f7 !important;
+  color: #1d1d1f !important;
+}
+
+.theme-light .bg-\[\#161618\],
+.theme-light .bg-\[\#18181b\] {
+  background-color: #e9e9ef !important;
+}
+
+.theme-light .bg-\[\#1c1c1e\],
+.theme-light .bg-\[\#1c1c1e\]\/95 {
+  background-color: #ffffff !important;
+}
+
+.theme-light .bg-\[\#242426\],
+.theme-light .bg-\[\#242426\]\/95 {
+  background-color: rgba(242, 242, 247, 0.96) !important;
+}
+
+.theme-light .bg-\[\#2c2c2e\] {
+  background-color: #e5e5ea !important;
+}
+
+.theme-light .bg-\[\#48484a\] {
+  background-color: #ffffff !important;
+  color: #1d1d1f !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+}
+
+.theme-light .text-white {
+  color: #1d1d1f !important;
+}
+
+.theme-light .bg-\[\#0A84FF\].text-white,
+.theme-light .bg-\[\#0A84FF\] .text-white,
+.theme-light .bg-\[\#30D158\].text-white,
+.theme-light .bg-\[\#30D158\] .text-white,
+.theme-light .bg-\[\#FF453A\].text-white,
+.theme-light .bg-\[\#FF453A\] .text-white {
+  color: #ffffff !important;
+}
+
+.theme-light .text-\[\#ebebf5\],
+.theme-light .text-\[\#ebebf5\]\/90,
+.theme-light .text-\[\#ebebf5\]\/80,
+.theme-light .text-\[\#ebebf5\]\/70 {
+  color: #3a3a3c !important;
+}
+
+.theme-light .text-\[\#8e8e93\] {
+  color: #6e6e73 !important;
+}
+
+.theme-light .border-white\/\[0\.06\],
+.theme-light .border-white\/\[0\.07\],
+.theme-light .border-white\/\[0\.08\],
+.theme-light .border-white\/\[0\.12\],
+.theme-light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.09) !important;
+}
+
+.theme-light .divide-white\/\[0\.06\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+.theme-light .hover\:bg-white\/\[0\.04\]:hover,
+.theme-light .hover\:bg-white\/\[0\.06\]:hover,
+.theme-light .hover\:bg-white\/\[0\.08\]:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
