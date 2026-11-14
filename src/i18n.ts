@@ -52,6 +52,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Audit trail of applications, plug-ins, and support folders moved to ~/.Trash with one-click restoration to their original path.',
     putBackSelected: 'Put Back Selected',
     checkForUpdates: 'Check for Updates',
+    reportBug: 'Report a Bug',
     exportReport: 'Export Audit Report',
     dropOverlayTitle: 'Drop App or File Here',
     dropOverlaySubtitle:
@@ -100,6 +101,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Πλήρες ιστορικό εφαρμογών και αρχείων που μετακινήθηκαν στο ~/.Trash με δυνατότητα επαναφοράς στην αρχική τους θέση με 1 κλικ.',
     putBackSelected: 'Επαναφορά Επιλεγμένων',
     checkForUpdates: 'Έλεγχος Ενημερώσεων',
+    reportBug: 'Αναφορά Bug',
     exportReport: 'Εξαγωγή Αναφοράς',
     dropOverlayTitle: 'Σύρε Εφαρμογή ή Αρχείο Εδώ',
     dropOverlaySubtitle:
@@ -148,6 +150,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Verlauf aller in ~/.Trash verschobenen Elemente mit Ein-Klick-Wiederherstellung am ursprünglichen Speicherort.',
     putBackSelected: 'Ausgewählte zurücklegen',
     checkForUpdates: 'Nach Updates suchen',
+    reportBug: 'Fehler melden',
     exportReport: 'Systembericht exportieren',
     dropOverlayTitle: 'App oder Datei hier ablegen',
     dropOverlaySubtitle:
@@ -196,6 +199,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Registro de elementos movidos a ~/.Trash con restauración en un clic a su ruta original.',
     putBackSelected: 'Restaurar Seleccionados',
     checkForUpdates: 'Buscar actualizaciones',
+    reportBug: 'Reportar Error',
     exportReport: 'Exportar Informe',
     dropOverlayTitle: 'Suelta una App o Archivo Aquí',
     dropOverlaySubtitle:
@@ -244,6 +248,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Journal des éléments déplacés vers ~/.Trash avec restauration en un clic vers leur emplacement d’origine.',
     putBackSelected: 'Remettre la Sélection',
     checkForUpdates: 'Rechercher des mises à jour',
+    reportBug: 'Signaler un Bug',
     exportReport: 'Exporter le Rapport',
     dropOverlayTitle: 'Déposez une App ou un Fichier Ici',
     dropOverlaySubtitle:

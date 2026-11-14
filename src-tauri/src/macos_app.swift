@@ -30,6 +30,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             keyEquivalent: "u"
         )
         appMenu.addItem(
+            withTitle: "Report a Bug...",
+            action: #selector(openBugReportModal),
+            keyEquivalent: "b"
+        )
+        appMenu.addItem(
             withTitle: "Reload ZeroTrash",
             action: #selector(reloadWebView),
             keyEquivalent: "r"
@@ -140,6 +145,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             withTitle: "Check for Updates...",
             action: #selector(openUpdatesModal),
             keyEquivalent: "u"
+        )
+        menu.addItem(
+            withTitle: "Report a Bug...",
+            action: #selector(openBugReportModal),
+            keyEquivalent: "b"
         )
         menu.addItem(
             withTitle: "Refresh Telemetry",
@@ -279,6 +289,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         showMainWindow()
         webView?.evaluateJavaScript(
             "window.openZeroTrashUpdates && window.openZeroTrashUpdates()",
+            completionHandler: nil
+        )
+    }
+
+    @objc func openBugReportModal() {
+        showMainWindow()
+        webView?.evaluateJavaScript(
+            "window.openZeroTrashBugReport && window.openZeroTrashBugReport()",
             completionHandler: nil
         )
     }

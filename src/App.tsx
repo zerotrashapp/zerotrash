@@ -28,6 +28,7 @@ import {
   FileText,
   Sparkles,
   UploadCloud,
+  Bug,
 } from 'lucide-react';
 import { ZeroTrashAPI, formatBytes } from './bridge';
 import { LANGUAGES, TRANSLATIONS, Language } from './i18n';
@@ -37,6 +38,7 @@ import {
   DEFAULT_GITHUB_REPO,
   compareVersions,
 } from './components/UpdateModal';
+import { BugReportModal } from './components/BugReportModal';
 import type {
   SystemOverview,
   InstalledApp,
@@ -185,6 +187,7 @@ export default function App() {
   const [statusMessage, setStatusMessage] = useState<string>('Ready');
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showBugModal, setShowBugModal] = useState(false);
   const [hasUpdateAvailable, setHasUpdateAvailable] = useState(false);
   const [latestReleaseVersion, setLatestReleaseVersion] = useState(APP_VERSION);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -781,6 +784,7 @@ export default function App() {
 
   useEffect(() => {
     (window as any).openZeroTrashUpdates = () => setShowUpdateModal(true);
+    (window as any).openZeroTrashBugReport = () => setShowBugModal(true);
     (window as any).handleZeroTrashDroppedPath = (p: string) => {
       handleDroppedPath(p);
     };
@@ -1328,6 +1332,14 @@ export default function App() {
                 <span className="truncate">
                   {hasUpdateAvailable ? `Update v${latestReleaseVersion}` : t.checkForUpdates}
                 </span>
+              </button>
+
+              <button
+                onClick={() => setShowBugModal(true)}
+                className="py-1.5 px-2.5 rounded-[8px] bg-[#2c2c2e] hover:bg-[#3a3a3c] border border-white/[0.06] text-[#ebebf5]/90 hover:text-white text-[11px] font-medium flex items-center justify-center transition-all shrink-0"
+                title={t.reportBug}
+              >
+                <Bug className="w-3.5 h-3.5 text-[#FF453A]" />
               </button>
 
               <button
@@ -1967,6 +1979,13 @@ export default function App() {
           setHasUpdateAvailable(hasUpd);
           setLatestReleaseVersion(ver);
         }}
+      />
+
+      <BugReportModal
+        isOpen={showBugModal}
+        onClose={() => setShowBugModal(false)}
+        overview={overview}
+        perfSnapshot={perfSnapshot}
       />
     </div>
   );

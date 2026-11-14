@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 export const APP_VERSION = '1.0.0';
-export const DEFAULT_GITHUB_REPO = '6pp87gxpks-cmyk/zerotrash';
+export const DEFAULT_GITHUB_REPO = 'zerotrashapp/zerotrash';
 
 export interface GithubReleaseAsset {
   name: string;
@@ -57,7 +57,11 @@ export const UpdateModal: React.FC<Props> = ({
   const [repo, setRepo] = useState<string>(() => {
     try {
       const saved = localStorage.getItem('zerotrash-github-repo');
-      if (!saved || saved.startsWith('spiros/')) {
+      if (
+        !saved ||
+        saved.startsWith('spiros/') ||
+        saved.startsWith('6pp87gxpks')
+      ) {
         localStorage.setItem('zerotrash-github-repo', DEFAULT_GITHUB_REPO);
         return DEFAULT_GITHUB_REPO;
       }
