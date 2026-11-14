@@ -29,6 +29,8 @@ import {
   Sparkles,
   UploadCloud,
   Bug,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { ZeroTrashAPI, formatBytes } from './bridge';
 import { LANGUAGES, TRANSLATIONS, Language } from './i18n';
@@ -39,6 +41,7 @@ import {
   compareVersions,
 } from './components/UpdateModal';
 import { BugReportModal } from './components/BugReportModal';
+import { CommandPaletteModal } from './components/CommandPaletteModal';
 import type {
   SystemOverview,
   InstalledApp,
@@ -94,7 +97,15 @@ type Section =
   | 'history';
 
 export default function App() {
-  const [section, setSection] = useState<Section>('apps');
+  const [section, setSection] = useState<Section>('smart');
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showProTools, setShowProTools] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('zerotrash-pro-tools') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const saved = localStorage.getItem('zerotrash-theme');
     return saved === 'light' ? 'light' : 'dark';
@@ -195,6 +206,7 @@ export default function App() {
 
   useEffect(() => {
     refreshPrimaryData();
+    fetchSmartScan();
     ZeroTrashAPI.scanDeveloperCaches().then(setDevCaches).catch(() => {});
     ZeroTrashAPI.scanSystemPlugins().then(setPlugins).catch(() => {});
     ZeroTrashAPI.scanUniversalApps().then(setUniversalApps).catch(() => {});
@@ -790,6 +802,36 @@ export default function App() {
     };
   }, [apps]);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowCommandPalette((prev) => !prev);
+      } else if (e.key === 'Escape') {
+        setShowCommandPalette(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const proIds: Section[] = [
+      'startup',
+      'maintenance',
+      'protection',
+      'lens',
+      'storage',
+      'shredder',
+      'universal',
+      'plugins',
+      'packages',
+    ];
+    if (proIds.includes(section) && !showProTools) {
+      setShowProTools(true);
+    }
+  }, [section]);
+
   function exportAuditReport() {
     const now = new Date();
     const dateStr = now.toISOString().split('T')[0];
@@ -980,53 +1022,39 @@ export default function App() {
               </button>
             </div>
 
+            {/* Quick Search / Command Palette Button (⌘K) */}
+            <button
+              onClick={() => setShowCommandPalette(true)}
+              className="w-full px-2.5 py-1.5 rounded-[9px] bg-[#242426] hover:bg-[#2c2c2e] border border-white/[0.08] flex items-center justify-between text-xs text-[#8e8e93] hover:text-white transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Search className="w-3.5 h-3.5 text-[#0A84FF]" />
+                <span>Quick Search...</span>
+              </span>
+              <kbd className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 text-[10px] font-mono text-[#8e8e93]">
+                ⌘K
+              </kbd>
+            </button>
+
             <nav className="space-y-0.5">
               <div className="px-2.5 pb-1 text-[11px] font-semibold text-[#8e8e93]">
                 {t.systemCare}
               </div>
-              <button
-                onClick={() => setSection('smart')}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[9px] text-xs font-medium transition-all ${
-                  section === 'smart'
-                    ? 'bg-[#0A84FF] text-white shadow-sm'
-                    : 'text-[#ebebf5]/80 hover:bg-white/[0.06] hover:text-white'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Gauge
-                    className={`w-4 h-4 ${
-                      section === 'smart' ? 'text-white' : 'text-[#0A84FF]'
-                    }`}
-                  />
-                  <span>{t.smartCare}</span>
-                </div>
-              </button>
-
-              <div className="px-2.5 pt-2.5 pb-1 text-[11px] font-semibold text-[#8e8e93]">
-                {t.applicationsGroup}
-              </div>
 
               {[
+                {
+                  id: 'smart',
+                  label: t.smartCare,
+                  icon: Gauge,
+                  color: 'text-[#0A84FF]',
+                  count: null,
+                },
                 {
                   id: 'apps',
                   label: t.uninstaller,
                   icon: AppWindow,
-                  color: 'text-[#0A84FF]',
-                  count: apps.length,
-                },
-                {
-                  id: 'universal',
-                  label: t.universalSlimmer,
-                  icon: Scissors,
-                  color: 'text-[#30D158]',
-                  count: universalApps.length || null,
-                },
-                {
-                  id: 'plugins',
-                  label: t.pluginsAudio,
-                  icon: Puzzle,
-                  color: 'text-[#BF5AF2]',
-                  count: plugins.length || null,
+                  color: 'text-[#64D2FF]',
+                  count: apps.length || null,
                 },
                 {
                   id: 'orphans',
@@ -1035,50 +1063,6 @@ export default function App() {
                   color: 'text-[#FF9F0A]',
                   count: orphans.length || null,
                 },
-                {
-                  id: 'packages',
-                  label: t.packages,
-                  icon: Package,
-                  color: 'text-[#64D2FF]',
-                  count: packages.length || null,
-                },
-              ].map((item) => {
-                const Icon = item.icon;
-                const active = section === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setSection(item.id as Section)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[9px] text-xs font-medium transition-all ${
-                      active
-                        ? 'bg-[#0A84FF] text-white shadow-sm'
-                        : 'text-[#ebebf5]/80 hover:bg-white/[0.06] hover:text-white'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Icon
-                        className={`w-4 h-4 shrink-0 ${active ? 'text-white' : item.color}`}
-                      />
-                      <span className="truncate">{item.label}</span>
-                    </div>
-                    {item.count !== null && (
-                      <span
-                        className={`font-mono text-[11px] tabular-nums ${
-                          active ? 'text-white/90' : 'text-[#8e8e93]'
-                        }`}
-                      >
-                        {item.count}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-
-              <div className="px-2.5 pt-2.5 pb-1 text-[11px] font-semibold text-[#8e8e93]">
-                {t.storageDiskGroup}
-              </div>
-
-              {[
                 {
                   id: 'large',
                   label: t.largeOldFiles,
@@ -1092,85 +1076,6 @@ export default function App() {
                   icon: Copy,
                   color: 'text-[#BF5AF2]',
                   count: duplicateGroups.length || null,
-                },
-                {
-                  id: 'lens',
-                  label: t.spaceLens,
-                  icon: FolderTree,
-                  color: 'text-[#30D158]',
-                  count: null,
-                },
-                {
-                  id: 'storage',
-                  label: t.appFootprint,
-                  icon: HardDrive,
-                  color: 'text-[#64D2FF]',
-                  count: null,
-                },
-              ].map((item) => {
-                const Icon = item.icon;
-                const active = section === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setSection(item.id as Section)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[9px] text-xs font-medium transition-all ${
-                      active
-                        ? 'bg-[#0A84FF] text-white shadow-sm'
-                        : 'text-[#ebebf5]/80 hover:bg-white/[0.06] hover:text-white'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Icon
-                        className={`w-4 h-4 shrink-0 ${active ? 'text-white' : item.color}`}
-                      />
-                      <span className="truncate">{item.label}</span>
-                    </div>
-                    {item.count !== null && (
-                      <span
-                        className={`font-mono text-[11px] tabular-nums ${
-                          active ? 'text-white/90' : 'text-[#8e8e93]'
-                        }`}
-                      >
-                        {item.count}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-
-              <div className="px-2.5 pt-2.5 pb-1 text-[11px] font-semibold text-[#8e8e93]">
-                {t.protectionSpeedGroup}
-              </div>
-
-              {[
-                {
-                  id: 'protection',
-                  label: t.protectionPrivacy,
-                  icon: ShieldCheck,
-                  color: 'text-[#30D158]',
-                  count: null,
-                },
-                {
-                  id: 'shredder',
-                  label: t.fileShredder,
-                  icon: Flame,
-                  color: 'text-[#FF453A]',
-                  count: null,
-                },
-                {
-                  id: 'maintenance',
-                  label: t.maintenanceCaches,
-                  icon: Activity,
-                  color: 'text-[#FF9F0A]',
-                  count: devCaches.length || null,
-                },
-                {
-                  id: 'startup',
-                  label: t.launchdServices,
-                  icon: Power,
-                  color: 'text-[#FFD60A]',
-                  count: startupItems.length || null,
                 },
                 {
                   id: 'history',
@@ -1210,6 +1115,134 @@ export default function App() {
                   </button>
                 );
               })}
+
+              {/* Collapsible Pro & Power Tools Drawer */}
+              <div className="pt-2">
+                <button
+                  onClick={() => {
+                    const next = !showProTools;
+                    setShowProTools(next);
+                    try {
+                      localStorage.setItem('zerotrash-pro-tools', String(next));
+                    } catch {}
+                  }}
+                  className="w-full px-2.5 py-1.5 rounded-[8px] flex items-center justify-between text-[11px] font-semibold text-[#8e8e93] hover:text-white hover:bg-white/[0.04] transition-colors"
+                >
+                  <span className="flex items-center gap-1.5">
+                    {showProTools ? (
+                      <ChevronDown className="w-3.5 h-3.5 text-[#0A84FF]" />
+                    ) : (
+                      <ChevronRight className="w-3.5 h-3.5 text-[#8e8e93]" />
+                    )}
+                    <span>Pro & Power Tools</span>
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded bg-white/[0.06] font-mono text-[10px]">
+                    9
+                  </span>
+                </button>
+
+                {showProTools && (
+                  <div className="mt-0.5 space-y-0.5 pl-1 border-l border-white/[0.07] ml-2">
+                    {[
+                      {
+                        id: 'startup',
+                        label: t.launchdServices,
+                        icon: Power,
+                        color: 'text-[#FFD60A]',
+                        count: startupItems.length || null,
+                      },
+                      {
+                        id: 'maintenance',
+                        label: t.maintenanceCaches,
+                        icon: Activity,
+                        color: 'text-[#FF9F0A]',
+                        count: devCaches.length || null,
+                      },
+                      {
+                        id: 'protection',
+                        label: t.protectionPrivacy,
+                        icon: ShieldCheck,
+                        color: 'text-[#30D158]',
+                        count: null,
+                      },
+                      {
+                        id: 'lens',
+                        label: t.spaceLens,
+                        icon: FolderTree,
+                        color: 'text-[#30D158]',
+                        count: null,
+                      },
+                      {
+                        id: 'storage',
+                        label: t.appFootprint,
+                        icon: HardDrive,
+                        color: 'text-[#64D2FF]',
+                        count: null,
+                      },
+                      {
+                        id: 'shredder',
+                        label: t.fileShredder,
+                        icon: Flame,
+                        color: 'text-[#FF453A]',
+                        count: null,
+                      },
+                      {
+                        id: 'universal',
+                        label: t.universalSlimmer,
+                        icon: Scissors,
+                        color: 'text-[#30D158]',
+                        count: universalApps.length || null,
+                      },
+                      {
+                        id: 'plugins',
+                        label: t.pluginsAudio,
+                        icon: Puzzle,
+                        color: 'text-[#BF5AF2]',
+                        count: plugins.length || null,
+                      },
+                      {
+                        id: 'packages',
+                        label: t.packages,
+                        icon: Package,
+                        color: 'text-[#64D2FF]',
+                        count: packages.length || null,
+                      },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      const active = section === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => setSection(item.id as Section)}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[9px] text-xs font-medium transition-all ${
+                            active
+                              ? 'bg-[#0A84FF] text-white shadow-sm'
+                              : 'text-[#ebebf5]/80 hover:bg-white/[0.06] hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <Icon
+                              className={`w-4 h-4 shrink-0 ${
+                                active ? 'text-white' : item.color
+                              }`}
+                            />
+                            <span className="truncate">{item.label}</span>
+                          </div>
+                          {item.count !== null && (
+                            <span
+                              className={`font-mono text-[11px] tabular-nums ${
+                                active ? 'text-white/90' : 'text-[#8e8e93]'
+                              }`}
+                            >
+                              {item.count}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </nav>
           </div>
 
@@ -1393,6 +1426,8 @@ export default function App() {
               <SmartScanView
                 report={smartReport}
                 loading={loadingSmart}
+                appsCount={apps.length}
+                orphansCount={orphans.length}
                 onRunScan={fetchSmartScan}
                 onNavigate={(sec) => setSection(sec)}
                 onCleanAll={(paths, totalBytes) => {
@@ -1986,6 +2021,14 @@ export default function App() {
         onClose={() => setShowBugModal(false)}
         overview={overview}
         perfSnapshot={perfSnapshot}
+      />
+
+      <CommandPaletteModal
+        isOpen={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        apps={apps}
+        onSelectSection={(sec) => setSection(sec)}
+        onInspectApp={(app) => inspectApplication(app)}
       />
     </div>
   );
