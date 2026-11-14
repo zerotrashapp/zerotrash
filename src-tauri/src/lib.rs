@@ -155,6 +155,48 @@ fn shred_paths(paths: Vec<String>, passes: Option<u8>) -> UninstallResult {
 }
 
 #[cfg(feature = "desktop")]
+#[tauri::command]
+fn save_file_with_dialog(default_name: String, content: String) -> SaveDialogResult {
+    platform::save_file_with_dialog(&default_name, &content)
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+fn scan_ai_models() -> Vec<AiModelEntry> {
+    platform::scan_ai_models()
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+fn scan_ghost_space() -> Vec<GhostSpaceEntry> {
+    platform::scan_ghost_space()
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+fn scan_telemetry_items() -> Vec<TelemetryEntry> {
+    platform::scan_telemetry_items()
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+fn list_app_capsules() -> Vec<AppCapsuleEntry> {
+    platform::list_app_capsules()
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+fn create_app_capsule(app_name: String, bundle_id: Option<String>) -> Result<AppCapsuleEntry, String> {
+    platform::create_app_capsule(&app_name, bundle_id.as_deref().unwrap_or(""))
+}
+
+#[cfg(feature = "desktop")]
+#[tauri::command]
+fn restore_app_capsule(capsule_id: String) -> Result<String, String> {
+    platform::restore_app_capsule(&capsule_id)
+}
+
+#[cfg(feature = "desktop")]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -183,7 +225,14 @@ pub fn run() {
             get_trash_history,
             restore_trash_items,
             scan_duplicates,
-            shred_paths
+            shred_paths,
+            save_file_with_dialog,
+            scan_ai_models,
+            scan_ghost_space,
+            scan_telemetry_items,
+            list_app_capsules,
+            create_app_capsule,
+            restore_app_capsule
         ])
         .run(tauri::generate_context!())
         .expect("error while running ZeroTrash application");

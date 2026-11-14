@@ -21,6 +21,11 @@ import type {
   TrashHistoryEntry,
   RestoreResult,
   DuplicateGroup,
+  AiModelEntry,
+  GhostSpaceEntry,
+  TelemetryEntry,
+  AppCapsuleEntry,
+  SaveDialogResult,
 } from './types';
 
 function isTauriEnvironment(): boolean {
@@ -86,6 +91,16 @@ export const ZeroTrashAPI = {
     callRustEngine<DuplicateGroup[]>('scan_duplicates'),
   shredPaths: (paths: string[], passes = 1) =>
     callRustEngine<UninstallResult>('shred_paths', { paths, passes }),
+  saveFileWithDialog: (defaultName: string, content: string) =>
+    callRustEngine<SaveDialogResult>('save_file_with_dialog', { defaultName, content }),
+  scanAiModels: () => callRustEngine<AiModelEntry[]>('scan_ai_models'),
+  scanGhostSpace: () => callRustEngine<GhostSpaceEntry[]>('scan_ghost_space'),
+  scanTelemetryItems: () => callRustEngine<TelemetryEntry[]>('scan_telemetry_items'),
+  listAppCapsules: () => callRustEngine<AppCapsuleEntry[]>('list_app_capsules'),
+  createAppCapsule: (appName: string, bundleId: string) =>
+    callRustEngine<AppCapsuleEntry>('create_app_capsule', { appName, bundleId }),
+  restoreAppCapsule: (capsuleId: string) =>
+    callRustEngine<{ ok: boolean; message: string }>('restore_app_capsule', { capsuleId }),
 };
 
 export function formatBytes(bytes: number): string {

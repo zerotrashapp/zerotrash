@@ -31,6 +31,10 @@ import {
   Bug,
   ChevronDown,
   ChevronRight,
+  Brain,
+  Ghost,
+  Radar,
+  Archive,
 } from 'lucide-react';
 import { ZeroTrashAPI, formatBytes } from './bridge';
 import { LANGUAGES, TRANSLATIONS, Language } from './i18n';
@@ -59,7 +63,15 @@ import type {
   UniversalAppItem,
   TrashHistoryEntry,
   DuplicateGroup,
+  AiModelEntry,
+  GhostSpaceEntry,
+  TelemetryEntry,
+  AppCapsuleEntry,
 } from './types';
+import { AiVaultView } from './components/AiVaultView';
+import { GhostSpaceView } from './components/GhostSpaceView';
+import { TelemetryView } from './components/TelemetryView';
+import { TimeCapsuleView } from './components/TimeCapsuleView';
 import { AppInspector } from './components/AppInspector';
 import { AppIcon } from './components/AppIcon';
 import { StorageMultiBar } from './components/StorageMultiBar';
@@ -94,7 +106,11 @@ type Section =
   | 'shredder'
   | 'maintenance'
   | 'startup'
-  | 'history';
+  | 'history'
+  | 'ai_vault'
+  | 'ghost_space'
+  | 'telemetry'
+  | 'time_capsule';
 
 export default function App() {
   const [section, setSection] = useState<Section>('smart');
@@ -102,6 +118,13 @@ export default function App() {
   const [showProTools, setShowProTools] = useState<boolean>(() => {
     try {
       return localStorage.getItem('zerotrash-pro-tools') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [showExclusiveTools, setShowExclusiveTools] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('zerotrash-exclusive-tools') === 'true';
     } catch {
       return false;
     }
@@ -191,6 +214,15 @@ export default function App() {
   const [loadingProtection, setLoadingProtection] = useState(false);
   const [selectedPrivacy, setSelectedPrivacy] = useState<Set<string>>(new Set());
   const [shredBusy, setShredBusy] = useState(false);
+
+  const [aiModels, setAiModels] = useState<AiModelEntry[]>([]);
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [ghostSpace, setGhostSpace] = useState<GhostSpaceEntry[]>([]);
+  const [loadingGhost, setLoadingGhost] = useState(false);
+  const [telemetryItems, setTelemetryItems] = useState<TelemetryEntry[]>([]);
+  const [loadingTelemetry, setLoadingTelemetry] = useState(false);
+  const [capsules, setCapsules] = useState<AppCapsuleEntry[]>([]);
+  const [loadingCapsules, setLoadingCapsules] = useState(false);
 
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
   const [busyUninstall, setBusyUninstall] = useState(false);
@@ -504,6 +536,81 @@ export default function App() {
     }
   }
 
+  async function fetchAiVault() {
+    setLoadingAi(true);
+    setStatusMessage('Scanning local AI models, HuggingFace weights, and GPU caches...');
+    try {
+      const list = await ZeroTrashAPI.scanAiModels();
+      setAiModels(list);
+      setStatusMessage(`Found ${list.length} AI model & cache locations`);
+    } catch (err: any) {
+      setStatusMessage(`AI Vault scan failed: ${err.message}`);
+    } finally {
+      setLoadingAi(false);
+    }
+  }
+
+  async function fetchGhostSpace() {
+    setLoadingGhost(true);
+    setStatusMessage('Hunting trapped Ghost Space (Docker, iPhone backups, VM disks)...');
+    try {
+      const list = await ZeroTrashAPI.scanGhostSpace();
+      setGhostSpace(list);
+      setStatusMessage(`Detected ${list.length} Ghost Space locations`);
+    } catch (err: any) {
+      setStatusMessage(`Ghost Space scan failed: ${err.message}`);
+    } finally {
+      setLoadingGhost(false);
+    }
+  }
+
+  async function fetchTelemetry() {
+    setLoadingTelemetry(true);
+    setStatusMessage('Auditing Crashpad queues, Sentry dumps, and telemetry logs...');
+    try {
+      const list = await ZeroTrashAPI.scanTelemetryItems();
+      setTelemetryItems(list);
+      setStatusMessage(`Found ${list.length} telemetry & crash dump locations`);
+    } catch (err: any) {
+      setStatusMessage(`Telemetry scan failed: ${err.message}`);
+    } finally {
+      setLoadingTelemetry(false);
+    }
+  }
+
+  async function fetchCapsules() {
+    setLoadingCapsules(true);
+    try {
+      const list = await ZeroTrashAPI.listAppCapsules();
+      setCapsules(list);
+    } catch (err: any) {
+      setStatusMessage(`Time-Capsule load failed: ${err.message}`);
+    } finally {
+      setLoadingCapsules(false);
+    }
+  }
+
+  async function handleCreateCapsule(appName: string, bundleId: string) {
+    setStatusMessage(`Archiving settings capsule for ${appName}...`);
+    try {
+      const created = await ZeroTrashAPI.createAppCapsule(appName, bundleId);
+      setCapsules((prev) => [created, ...prev]);
+      setStatusMessage(`Saved settings capsule for ${appName} (${formatBytes(created.size_bytes)})`);
+    } catch (err: any) {
+      setStatusMessage(`Capsule error: ${err.message}`);
+    }
+  }
+
+  async function handleRestoreCapsule(capsuleId: string) {
+    setStatusMessage('Restoring application settings from Time-Capsule...');
+    try {
+      const res = await ZeroTrashAPI.restoreAppCapsule(capsuleId);
+      setStatusMessage(res.message);
+    } catch (err: any) {
+      setStatusMessage(`Restore failed: ${err.message}`);
+    }
+  }
+
   function refreshActiveSection() {
     refreshPrimaryData();
     if (section === 'smart') fetchSmartScan();
@@ -518,6 +625,10 @@ export default function App() {
     if (section === 'duplicates') fetchDuplicates();
     if (section === 'lens') fetchSpaceLens(spaceLens?.current_path);
     if (section === 'protection') fetchProtection();
+    if (section === 'ai_vault') fetchAiVault();
+    if (section === 'ghost_space') fetchGhostSpace();
+    if (section === 'telemetry') fetchTelemetry();
+    if (section === 'time_capsule') fetchCapsules();
   }
 
   useEffect(() => {
@@ -548,6 +659,14 @@ export default function App() {
     } else if (section === 'shredder') {
       if (largeFiles.length === 0 && !loadingLarge) fetchLargeFiles();
       if (!loadingHistory) fetchTrashHistory();
+    } else if (section === 'ai_vault' && aiModels.length === 0 && !loadingAi) {
+      fetchAiVault();
+    } else if (section === 'ghost_space' && ghostSpace.length === 0 && !loadingGhost) {
+      fetchGhostSpace();
+    } else if (section === 'telemetry' && telemetryItems.length === 0 && !loadingTelemetry) {
+      fetchTelemetry();
+    } else if (section === 'time_capsule' && !loadingCapsules) {
+      fetchCapsules();
     }
   }, [section]);
 
@@ -830,9 +949,18 @@ export default function App() {
     if (proIds.includes(section) && !showProTools) {
       setShowProTools(true);
     }
+    const exclusiveIds: Section[] = [
+      'ai_vault',
+      'ghost_space',
+      'telemetry',
+      'time_capsule',
+    ];
+    if (exclusiveIds.includes(section) && !showExclusiveTools) {
+      setShowExclusiveTools(true);
+    }
   }, [section]);
 
-  function exportAuditReport() {
+  async function exportAuditReport() {
     const now = new Date();
     const dateStr = now.toISOString().split('T')[0];
     const topApps = [...apps]
@@ -909,16 +1037,30 @@ export default function App() {
 </body>
 </html>`;
 
+    const defaultFileName = `ZeroTrash-Audit-Report-${dateStr}.html`;
+    setStatusMessage('Opening Save As dialog...');
+    try {
+      const saveRes = await ZeroTrashAPI.saveFileWithDialog(defaultFileName, html);
+      if (saveRes.saved) {
+        setStatusMessage(`Exported System Audit Report to ${saveRes.path}`);
+        return;
+      }
+      if (saveRes.message.toLowerCase().includes('cancel')) {
+        setStatusMessage('Export cancelled.');
+        return;
+      }
+    } catch {}
+
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `ZeroTrash-Audit-Report-${dateStr}.html`;
+    link.download = defaultFileName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    setStatusMessage(`Exported System Audit Report (ZeroTrash-Audit-Report-${dateStr}.html)`);
+    setStatusMessage(`Exported System Audit Report (${defaultFileName})`);
   }
 
   return (
@@ -1206,6 +1348,100 @@ export default function App() {
                         icon: Package,
                         color: 'text-[#64D2FF]',
                         count: packages.length || null,
+                      },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      const active = section === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => setSection(item.id as Section)}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[9px] text-xs font-medium transition-all ${
+                            active
+                              ? 'bg-[#0A84FF] text-white shadow-sm'
+                              : 'text-[#ebebf5]/80 hover:bg-white/[0.06] hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <Icon
+                              className={`w-4 h-4 shrink-0 ${
+                                active ? 'text-white' : item.color
+                              }`}
+                            />
+                            <span className="truncate">{item.label}</span>
+                          </div>
+                          {item.count !== null && (
+                            <span
+                              className={`font-mono text-[11px] tabular-nums ${
+                                active ? 'text-white/90' : 'text-[#8e8e93]'
+                              }`}
+                            >
+                              {item.count}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Separate Collapsible Exclusive Tools Category */}
+              <div className="pt-1">
+                <button
+                  onClick={() => {
+                    const next = !showExclusiveTools;
+                    setShowExclusiveTools(next);
+                    try {
+                      localStorage.setItem('zerotrash-exclusive-tools', String(next));
+                    } catch {}
+                  }}
+                  className="w-full px-2.5 py-1.5 rounded-[8px] flex items-center justify-between text-[11px] font-semibold text-[#64D2FF] hover:bg-[#0A84FF]/10 transition-colors"
+                >
+                  <span className="flex items-center gap-1.5">
+                    {showExclusiveTools ? (
+                      <ChevronDown className="w-3.5 h-3.5 text-[#64D2FF]" />
+                    ) : (
+                      <ChevronRight className="w-3.5 h-3.5 text-[#64D2FF]" />
+                    )}
+                    <Sparkles className="w-3 h-3 text-[#BF5AF2]" />
+                    <span>Exclusive Tools</span>
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded bg-[#BF5AF2]/20 text-[#BF5AF2] font-mono text-[10px]">
+                    4
+                  </span>
+                </button>
+
+                {showExclusiveTools && (
+                  <div className="mt-0.5 space-y-0.5 pl-1 border-l border-[#BF5AF2]/30 ml-2">
+                    {[
+                      {
+                        id: 'ai_vault',
+                        label: 'AI & LLM Vault',
+                        icon: Brain,
+                        color: 'text-[#BF5AF2]',
+                        count: aiModels.length || null,
+                      },
+                      {
+                        id: 'ghost_space',
+                        label: 'Ghost Space Hunter',
+                        icon: Ghost,
+                        color: 'text-[#64D2FF]',
+                        count: ghostSpace.length || null,
+                      },
+                      {
+                        id: 'telemetry',
+                        label: 'Telemetry Shield',
+                        icon: Radar,
+                        color: 'text-[#FF9F0A]',
+                        count: telemetryItems.length || null,
+                      },
+                      {
+                        id: 'time_capsule',
+                        label: 'Settings Time-Capsule',
+                        icon: Archive,
+                        color: 'text-[#30D158]',
+                        count: capsules.length || null,
                       },
                     ].map((item) => {
                       const Icon = item.icon;
@@ -1913,6 +2149,76 @@ export default function App() {
                 busy={shredBusy}
                 externalCustomPaths={droppedShredderPaths}
                 onShredPaths={handleShredPaths}
+              />
+            )}
+
+            {section === 'ai_vault' && (
+              <AiVaultView
+                items={aiModels}
+                loading={loadingAi}
+                onCleanPaths={(paths, totalBytes) =>
+                  setConfirmState({
+                    open: true,
+                    title: `Clean ${paths.length} AI Model / Cache Items`,
+                    subtitle:
+                      'Selected local AI weights and assistant caches will be moved to ~/.Trash (restorable via Trash & Put Back).',
+                    paths,
+                    pidsToKill: [],
+                    totalBytes,
+                    permanent: false,
+                    onSuccess: () => fetchAiVault(),
+                  })
+                }
+              />
+            )}
+
+            {section === 'ghost_space' && (
+              <GhostSpaceView
+                items={ghostSpace}
+                loading={loadingGhost}
+                onCleanPaths={(paths, totalBytes) =>
+                  setConfirmState({
+                    open: true,
+                    title: `Reclaim ${paths.length} Ghost Space Targets`,
+                    subtitle:
+                      'Selected trapped virtual disks, device backups, or Xcode caches will be moved to ~/.Trash.',
+                    paths,
+                    pidsToKill: [],
+                    totalBytes,
+                    permanent: false,
+                    onSuccess: () => fetchGhostSpace(),
+                  })
+                }
+              />
+            )}
+
+            {section === 'telemetry' && (
+              <TelemetryView
+                items={telemetryItems}
+                loading={loadingTelemetry}
+                onCleanPaths={(paths, totalBytes) =>
+                  setConfirmState({
+                    open: true,
+                    title: `Purge ${paths.length} Telemetry & Crash Queues`,
+                    subtitle:
+                      'Selected Crashpad databases, Sentry dumps, and diagnostic reports will be moved to ~/.Trash.',
+                    paths,
+                    pidsToKill: [],
+                    totalBytes,
+                    permanent: false,
+                    onSuccess: () => fetchTelemetry(),
+                  })
+                }
+              />
+            )}
+
+            {section === 'time_capsule' && (
+              <TimeCapsuleView
+                capsules={capsules}
+                apps={apps}
+                loading={loadingCapsules}
+                onCreateCapsule={handleCreateCapsule}
+                onRestoreCapsule={handleRestoreCapsule}
               />
             )}
 

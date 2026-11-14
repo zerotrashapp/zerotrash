@@ -191,6 +191,55 @@ fn dispatch_command(cmd: &str, payload: &str) -> Result<String, String> {
             let res = platform::shred_paths(a.paths, a.passes.unwrap_or(1));
             Ok(serde_json::to_string(&res).unwrap_or_default())
         }
+        "save_file_with_dialog" => {
+            #[derive(serde::Deserialize)]
+            struct Args {
+                #[serde(rename = "defaultName")]
+                default_name: String,
+                content: String,
+            }
+            let a: Args = serde_json::from_str(payload).map_err(|e| e.to_string())?;
+            let res = platform::save_file_with_dialog(&a.default_name, &a.content);
+            Ok(serde_json::to_string(&res).unwrap_or_default())
+        }
+        "scan_ai_models" => {
+            let res = platform::scan_ai_models();
+            Ok(serde_json::to_string(&res).unwrap_or_default())
+        }
+        "scan_ghost_space" => {
+            let res = platform::scan_ghost_space();
+            Ok(serde_json::to_string(&res).unwrap_or_default())
+        }
+        "scan_telemetry_items" => {
+            let res = platform::scan_telemetry_items();
+            Ok(serde_json::to_string(&res).unwrap_or_default())
+        }
+        "list_app_capsules" => {
+            let res = platform::list_app_capsules();
+            Ok(serde_json::to_string(&res).unwrap_or_default())
+        }
+        "create_app_capsule" => {
+            #[derive(serde::Deserialize)]
+            struct Args {
+                #[serde(rename = "appName")]
+                app_name: String,
+                #[serde(rename = "bundleId")]
+                bundle_id: Option<String>,
+            }
+            let a: Args = serde_json::from_str(payload).map_err(|e| e.to_string())?;
+            platform::create_app_capsule(&a.app_name, a.bundle_id.as_deref().unwrap_or(""))
+                .map(|res| serde_json::to_string(&res).unwrap_or_default())
+        }
+        "restore_app_capsule" => {
+            #[derive(serde::Deserialize)]
+            struct Args {
+                #[serde(rename = "capsuleId")]
+                capsule_id: String,
+            }
+            let a: Args = serde_json::from_str(payload).map_err(|e| e.to_string())?;
+            platform::restore_app_capsule(&a.capsule_id)
+                .map(|msg| serde_json::json!({ "ok": true, "message": msg }).to_string())
+        }
         _ => Err(format!("Unknown command: {}", cmd)),
     }
 }

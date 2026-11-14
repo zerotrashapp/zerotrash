@@ -303,4 +303,54 @@ export interface DuplicateGroup {
   files: DuplicateFileEntry[];
 }
 
+export interface AiModelEntry {
+  id: string;
+  name: string;
+  provider: string;
+  kind: string;
+  path: string;
+  size_bytes: number;
+  last_modified: string;
+  description: string;
+}
+
+export interface GhostSpaceEntry {
+  id: string;
+  name: string;
+  category: string;
+  path: string;
+  size_bytes: number;
+  reclaimable: boolean;
+  action_hint: string;
+  description: string;
+}
+
+export interface TelemetryEntry {
+  id: string;
+  name: string;
+  vendor: string;
+  kind: string;
+  path: string;
+  size_bytes: number;
+  is_active: boolean;
+  description: string;
+}
+
+export interface AppCapsuleEntry {
+  id: string;
+  app_name: string;
+  bundle_id: string;
+  archive_path: string;
+  original_paths: string[];
+  size_bytes: number;
+  created_at: string;
+}
+
+export interface SaveDialogResult {
+  saved: boolean;
+  path: string;
+  message: string;
+}
+
+
 

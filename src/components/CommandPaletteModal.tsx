@@ -18,6 +18,10 @@ import {
   Scissors,
   Puzzle,
   Package,
+  Brain,
+  Ghost,
+  Radar,
+  Archive,
 } from 'lucide-react';
 import { formatBytes } from '../bridge';
 import type { InstalledApp } from '../types';
@@ -135,6 +139,34 @@ const TOOL_ITEMS = [
     title: 'Developer Packages (Homebrew / npm / pip)',
     keywords: 'packages homebrew brew npm pip cargo πακετα',
     icon: Package,
+    color: 'text-[#30D158]',
+  },
+  {
+    id: 'ai_vault',
+    title: 'AI, LLM & GPU Cache Vault',
+    keywords: 'ai llm ollama huggingface lmstudio pytorch whisper claude chatgpt cursor',
+    icon: Brain,
+    color: 'text-[#BF5AF2]',
+  },
+  {
+    id: 'ghost_space',
+    title: 'Ghost Space Hunter (Docker / iPhone Backups / VM)',
+    keywords: 'ghost space docker iphone backup mobilesync xcode purgeable',
+    icon: Ghost,
+    color: 'text-[#64D2FF]',
+  },
+  {
+    id: 'telemetry',
+    title: 'Telemetry & Crash-Reporter Shield',
+    keywords: 'telemetry crashpad sentry keystone diagnostic reports',
+    icon: Radar,
+    color: 'text-[#FF9F0A]',
+  },
+  {
+    id: 'time_capsule',
+    title: 'App Settings Time-Capsule',
+    keywords: 'time capsule settings backup preferences archive restore',
+    icon: Archive,
     color: 'text-[#30D158]',
   },
 ];

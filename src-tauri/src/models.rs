@@ -334,4 +334,59 @@ pub struct DuplicateGroup {
     pub files: Vec<DuplicateFileEntry>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AiModelEntry {
+    pub id: String,
+    pub name: String,
+    pub provider: String,
+    pub kind: String,
+    pub path: String,
+    pub size_bytes: u64,
+    pub last_modified: String,
+    pub description: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GhostSpaceEntry {
+    pub id: String,
+    pub name: String,
+    pub category: String,
+    pub path: String,
+    pub size_bytes: u64,
+    pub reclaimable: bool,
+    pub action_hint: String,
+    pub description: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TelemetryEntry {
+    pub id: String,
+    pub name: String,
+    pub vendor: String,
+    pub kind: String,
+    pub path: String,
+    pub size_bytes: u64,
+    pub is_active: bool,
+    pub description: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AppCapsuleEntry {
+    pub id: String,
+    pub app_name: String,
+    pub bundle_id: String,
+    pub archive_path: String,
+    pub original_paths: Vec<String>,
+    pub size_bytes: u64,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SaveDialogResult {
+    pub saved: bool,
+    pub path: String,
+    pub message: String,
+}
+
+
 
