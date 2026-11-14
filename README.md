@@ -5,7 +5,7 @@
   <p>Built with <strong>Rust</strong>, <strong>Tauri v2</strong>, and <strong>React / TypeScript</strong> — engineered for speed, safety, and complete local privacy.</p>
 
   <p>
-    <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version 1.0.0" />
+    <a href="https://github.com/zerotrashapp/zerotrash/releases/latest"><img src="https://img.shields.io/badge/release-v1.0.0-blue.svg" alt="Release v1.0.0" /></a>
     <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg" alt="Platforms" />
     <img src="https://img.shields.io/badge/engine-Rust-orange.svg" alt="Rust Engine" />
     <img src="https://img.shields.io/badge/UI-React%20%2B%20TypeScript-61dafb.svg" alt="React + TypeScript" />
@@ -14,6 +14,22 @@
 </div>
 
 ---
+
+## Download
+
+Grab the latest installer for your operating system from the [**Releases Page**](https://github.com/zerotrashapp/zerotrash/releases/latest):
+
+| Platform | Architecture / Format | Download |
+| :--- | :--- | :--- |
+| **macOS** | Apple Silicon (`M1`–`M4`, `.dmg`) | [ZeroTrash_1.0.0_aarch64.dmg](https://github.com/zerotrashapp/zerotrash/releases/latest/download/ZeroTrash_1.0.0_aarch64.dmg) |
+| **macOS** | Intel (`x86_64`, `.dmg`) | [ZeroTrash_1.0.0_x64.dmg](https://github.com/zerotrashapp/zerotrash/releases/latest/download/ZeroTrash_1.0.0_x64.dmg) |
+| **Windows** | 64-bit Installer (`.exe`) | [ZeroTrash_1.0.0_x64-setup.exe](https://github.com/zerotrashapp/zerotrash/releases/latest/download/ZeroTrash_1.0.0_x64-setup.exe) |
+| **Windows** | 64-bit MSI Package (`.msi`) | [ZeroTrash_1.0.0_x64_en-US.msi](https://github.com/zerotrashapp/zerotrash/releases/latest/download/ZeroTrash_1.0.0_x64_en-US.msi) |
+| **Linux** | AppImage (`x86_64`) | [ZeroTrash_1.0.0_amd64.AppImage](https://github.com/zerotrashapp/zerotrash/releases/latest/download/ZeroTrash_1.0.0_amd64.AppImage) |
+| **Linux** | Debian / Ubuntu (`.deb`) | [ZeroTrash_1.0.0_amd64.deb](https://github.com/zerotrashapp/zerotrash/releases/latest/download/ZeroTrash_1.0.0_amd64.deb) |
+| **Linux** | Fedora / RHEL (`.rpm`) | [ZeroTrash-1.0.0-1.x86_64.rpm](https://github.com/zerotrashapp/zerotrash/releases/latest/download/ZeroTrash-1.0.0-1.x86_64.rpm) |
+
+> **macOS Note:** Since the community build is ad-hoc signed, if macOS Gatekeeper warns on first launch, drag `ZeroTrash.app` to `/Applications` and run `xattr -cr /Applications/ZeroTrash.app` in Terminal (or right-click → **Open**).
 
 ## Overview
 
