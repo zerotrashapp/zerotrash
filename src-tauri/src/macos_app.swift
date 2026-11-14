@@ -8,7 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var statusItem: NSStatusItem!
     var serverProcess: Process?
     var pendingDroppedFile: String?
-    let projectDir = "/Users/spiros/Desktop/zerotrash"
+    let projectDir = NSHomeDirectory() + "/Desktop/zerotrash"
     let serverURL = URL(string: "http://127.0.0.1:1420")!
 
     func applicationDidFinishLaunching(_ notification: Notification) {

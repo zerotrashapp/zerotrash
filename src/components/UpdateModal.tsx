@@ -57,11 +57,7 @@ export const UpdateModal: React.FC<Props> = ({
   const [repo, setRepo] = useState<string>(() => {
     try {
       const saved = localStorage.getItem('zerotrash-github-repo');
-      if (
-        !saved ||
-        saved.startsWith('spiros/') ||
-        saved.startsWith('6pp87gxpks')
-      ) {
+      if (!saved || !saved.includes('/')) {
         localStorage.setItem('zerotrash-github-repo', DEFAULT_GITHUB_REPO);
         return DEFAULT_GITHUB_REPO;
       }

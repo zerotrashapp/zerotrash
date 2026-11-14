@@ -2,7 +2,7 @@
 name = "zerotrash"
 version = "1.0.0"
 description = "ZeroTrash — Next-Gen Cross-Platform Uninstaller & Deep Cleaner"
-authors = ["Spiros & Antigravity"]
+authors = ["ZeroTrash"]
 edition = "2021"
 default-run = "zerotrash"
 

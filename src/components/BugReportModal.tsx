@@ -35,7 +35,7 @@ export const BugReportModal: React.FC<Props> = ({
   const repo = (() => {
     try {
       const saved = localStorage.getItem('zerotrash-github-repo');
-      if (saved && !saved.startsWith('spiros/') && !saved.startsWith('6pp87gxpks')) {
+      if (saved && saved.includes('/')) {
         return saved;
       }
       return DEFAULT_GITHUB_REPO;

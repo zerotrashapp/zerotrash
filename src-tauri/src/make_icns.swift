@@ -494,7 +494,7 @@ func drawGitHubProfileAvatar(size: Int, outPath: String) {
     }
 }
 
-drawGitHubProfileAvatar(size: 1024, outPath: "/Users/spiros/Desktop/ZeroTrash-GitHub-Profile-Icon.png")
+drawGitHubProfileAvatar(size: 1024, outPath: NSHomeDirectory() + "/Desktop/ZeroTrash-GitHub-Profile-Icon.png")
 
 // Also generate a high-res preview of the monochrome macOS Menu Bar Template Icon
 func drawMonochromeMenuBarPreview(size: Int, outPath: String) {
@@ -587,5 +587,5 @@ func drawMonochromeMenuBarPreview(size: Int, outPath: String) {
     }
 }
 
-drawMonochromeMenuBarPreview(size: 512, outPath: "/Users/spiros/.gemini/antigravity/brain/c4751934-4acd-4cb2-a5fe-823bcce3ac31/zerotrash_menubar_bw_preview.png")
+// Preview output disabled for clean repository builds
 
