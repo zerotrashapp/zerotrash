@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { formatBytes } from '../bridge';
 import type { InstalledApp } from '../types';
 import { AppIcon } from './AppIcon';

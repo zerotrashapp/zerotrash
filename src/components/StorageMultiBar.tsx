@@ -1,4 +1,3 @@
-import React from 'react';
 import { HardDrive } from 'lucide-react';
 import { formatBytes } from '../bridge';
 import type { SystemOverview } from '../types';

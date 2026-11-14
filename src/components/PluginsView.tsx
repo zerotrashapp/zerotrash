@@ -1,4 +1,3 @@
-import React from 'react';
 import { FolderOpen, Search, CheckSquare, Square, Loader2 } from 'lucide-react';
 import { ZeroTrashAPI, formatBytes } from '../bridge';
 import type { SystemPlugin } from '../types';

@@ -11,10 +11,36 @@ if (!fs.existsSync(ICON_CACHE_DIR)) {
   fs.mkdirSync(ICON_CACHE_DIR, { recursive: true });
 }
 
+function isTrustedLocalRequest(req: any): boolean {
+  const host = String(req.headers?.host || '');
+  const origin = req.headers?.origin ? String(req.headers.origin) : null;
+  const okHosts = ['127.0.0.1:1420', 'localhost:1420'];
+  if (!okHosts.includes(host)) return false;
+  if (origin && !okHosts.map((h) => `http://${h}`).includes(origin)) return false;
+  return true;
+}
+
 function rustEngineBridgePlugin() {
   return {
     name: 'zerotrash-rust-bridge',
     configureServer(server: any) {
+      server.middlewares.use('/api', (req: any, res: any, next: any) => {
+        if (!isTrustedLocalRequest(req)) {
+          res.statusCode = 403;
+          res.end(JSON.stringify({ error: 'Forbidden' }));
+          return;
+        }
+        if (
+          req.method === 'POST' &&
+          !String(req.headers['content-type'] || '').startsWith('application/json')
+        ) {
+          res.statusCode = 403;
+          res.end(JSON.stringify({ error: 'Content-Type must be application/json' }));
+          return;
+        }
+        next();
+      });
+
       server.middlewares.use('/api/icon', (req: any, res: any) => {
         try {
           const url = new URL(req.url || '', 'http://localhost');

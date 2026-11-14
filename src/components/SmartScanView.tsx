@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Loader2,
   Play,
@@ -8,7 +7,6 @@ import {
   ArrowRight,
   AppWindow,
   FileSearch,
-  Power,
   RotateCcw,
   Sparkles,
 } from 'lucide-react';

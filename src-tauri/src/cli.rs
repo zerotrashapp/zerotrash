@@ -293,7 +293,17 @@ fn mime_for_path(path: &Path) -> &'static str {
     }
 }
 
-fn handle_http_client(mut stream: TcpStream, dist_dir: PathBuf, icon_bin: PathBuf) {
+fn send_forbidden(stream: &mut TcpStream, reason: &str) {
+    let body = serde_json::json!({ "error": reason }).to_string();
+    let resp = format!(
+        "HTTP/1.1 403 Forbidden\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+        body.len(),
+        body
+    );
+    let _ = stream.write_all(resp.as_bytes());
+}
+
+fn handle_http_client(mut stream: TcpStream, dist_dir: PathBuf, icon_bin: PathBuf, port: u16) {
     let mut buf = [0u8; 65536];
     let n = match stream.read(&mut buf) {
         Ok(n) if n > 0 => n,
@@ -310,15 +320,57 @@ fn handle_http_client(mut stream: TcpStream, dist_dir: PathBuf, icon_bin: PathBu
     let full_path = parts.next().unwrap_or("/");
 
     let mut content_length = 0usize;
+    let mut host_hdr = String::new();
+    let mut origin_hdr: Option<String> = None;
+    let mut content_type = String::new();
     for line in lines {
-        if let Some(rest) = line.to_ascii_lowercase().strip_prefix("content-length:") {
+        let lower = line.to_ascii_lowercase();
+        if let Some(rest) = lower.strip_prefix("content-length:") {
             content_length = rest.trim().parse::<usize>().unwrap_or(0);
+        } else if let Some(rest) = lower.strip_prefix("host:") {
+            host_hdr = rest.trim().to_string();
+        } else if let Some(rest) = lower.strip_prefix("origin:") {
+            origin_hdr = Some(rest.trim().to_string());
+        } else if let Some(rest) = lower.strip_prefix("content-type:") {
+            content_type = rest.trim().to_string();
+        }
+    }
+
+    // Security: block DNS-rebinding (Host must be loopback on our port)
+    let allowed_hosts = [format!("127.0.0.1:{}", port), format!("localhost:{}", port)];
+    if !allowed_hosts.iter().any(|h| h == &host_hdr) {
+        send_forbidden(&mut stream, "Invalid Host header");
+        return;
+    }
+
+    let is_api = full_path.starts_with("/api/");
+    if is_api {
+        // Security: block cross-site requests from other websites (CSRF)
+        if let Some(origin) = &origin_hdr {
+            let allowed_origins = [
+                format!("http://127.0.0.1:{}", port),
+                format!("http://localhost:{}", port),
+            ];
+            if !allowed_origins.iter().any(|o| o == origin) {
+                send_forbidden(&mut stream, "Cross-origin request blocked");
+                return;
+            }
+        }
+        // Require JSON for mutating API calls (forces CORS preflight for foreign origins)
+        if method == "POST" && !content_type.starts_with("application/json") {
+            send_forbidden(&mut stream, "Content-Type must be application/json");
+            return;
+        }
+        if method != "POST" && full_path.starts_with("/api/invoke") {
+            send_forbidden(&mut stream, "Method not allowed");
+            return;
         }
     }
 
     let body_start = if header_end + 4 <= n { header_end + 4 } else { n };
     let mut body_bytes = buf[body_start..n].to_vec();
-    while body_bytes.len() < content_length {
+    let max_body = 32 * 1024 * 1024;
+    while body_bytes.len() < content_length.min(max_body) {
         let mut more = [0u8; 8192];
         match stream.read(&mut more) {
             Ok(r) if r > 0 => body_bytes.extend_from_slice(&more[..r]),
@@ -401,19 +453,26 @@ fn handle_http_client(mut stream: TcpStream, dist_dir: PathBuf, icon_bin: PathBu
         return;
     }
 
-    // Serve static files from dist_dir
-    let clean_rel = full_path
-        .split('?')
-        .next()
-        .unwrap_or("/")
-        .trim_start_matches('/');
-    let mut file_path = if clean_rel.is_empty() {
-        dist_dir.join("index.html")
+    // Serve static files from dist_dir (path-traversal safe)
+    let clean_rel = percent_decode(
+        full_path
+            .split('?')
+            .next()
+            .unwrap_or("/")
+            .trim_start_matches('/'),
+    );
+    let has_traversal = clean_rel
+        .split(['/', '\\'])
+        .any(|seg| seg == ".." || seg.contains('\0'));
+    let dist_canon = dist_dir.canonicalize().unwrap_or_else(|_| dist_dir.clone());
+    let mut file_path = if clean_rel.is_empty() || has_traversal {
+        dist_canon.join("index.html")
     } else {
-        dist_dir.join(clean_rel)
+        dist_canon.join(&clean_rel)
     };
-    if !file_path.exists() || file_path.is_dir() {
-        file_path = dist_dir.join("index.html");
+    match file_path.canonicalize() {
+        Ok(canon) if canon.starts_with(&dist_canon) && canon.is_file() => file_path = canon,
+        _ => file_path = dist_canon.join("index.html"),
     }
 
     if let Ok(bytes) = fs::read(&file_path) {
@@ -444,7 +503,7 @@ fn run_standalone_server(port: u16, dist_dir: PathBuf, icon_bin: PathBuf) {
         let d = dist_dir.clone();
         let i = icon_bin.clone();
         thread::spawn(move || {
-            handle_http_client(stream, d, i);
+            handle_http_client(stream, d, i, port);
         });
     }
 }

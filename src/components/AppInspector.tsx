@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { FolderOpen, Square, CheckSquare, Loader2 } from 'lucide-react';
 import { ZeroTrashAPI, formatBytes } from '../bridge';
 import type { InstalledApp, AppDeepScanResult, LeftoverItem } from '../types';

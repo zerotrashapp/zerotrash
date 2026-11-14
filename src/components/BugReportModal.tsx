@@ -6,7 +6,6 @@ import {
   Copy,
   Check,
   Cpu,
-  ShieldAlert,
 } from 'lucide-react';
 import { APP_VERSION, DEFAULT_GITHUB_REPO } from './UpdateModal';
 import { formatBytes } from '../bridge';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FolderOpen, Square, CheckSquare, Loader2 } from 'lucide-react';
 import { ZeroTrashAPI, formatBytes } from '../bridge';
 import type { OrphanedItem } from '../types';

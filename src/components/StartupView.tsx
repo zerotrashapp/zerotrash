@@ -1,4 +1,3 @@
-import React from 'react';
 import { FolderOpen, Search, Trash2, Loader2, Zap } from 'lucide-react';
 import { ZeroTrashAPI } from '../bridge';
 import type { StartupItem } from '../types';

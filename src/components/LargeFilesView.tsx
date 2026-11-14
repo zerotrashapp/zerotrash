@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FolderOpen, Search, CheckSquare, Square, Loader2 } from 'lucide-react';
 import { ZeroTrashAPI, formatBytes } from '../bridge';
 import type { LargeFileItem } from '../types';
